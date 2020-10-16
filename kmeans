@@ -1,0 +1,58 @@
+k = int(input("Enter number of clusters : "))
+
+def eucledian(x1,y1):
+    " function to calculate eucledian distance "
+    return ( ( int(x1[0])-int(y1[0]) )**2 + ( int(x1[1])-int(y1[1]) )**2 )**0.5 
+
+with open("trial.csv","rb") as fp:
+    data = [tuple(x.split(',')) for x in fp.read().decode().lower().split()[1:]]
+    
+    # find out initial values of mean
+    initial = [x for x in data[:k]]
+     
+    def main():
+        " Recursive function "
+        cluster = dict()
+        
+        for x in range(k):
+            cluster[x] = []
+        
+        for y,x in enumerate(data):
+            new = []
+            for i in range(k):
+                global initial
+                new.append(eucledian(x, initial[i]))
+                
+            cluster[new.index(min(new))].append(data[y])
+        
+        inicopy = initial.copy()
+        initial = []
+        print(cluster)
+        for x in cluster:
+            x1 = 0
+            y1 = 0
+            for each in cluster[x]:
+                x1 = x1 + int(each[0])
+                y1 = y1 + int(each[1])
+                
+            x1 = x1 / len(cluster[x])
+            y1 = y1 / len(cluster[x])
+            
+            initial.append((x1,y1))
+        if(initial == inicopy):
+            print("Exit Loop")
+            print(cluster)
+        else:
+            main()
+    main()
+
+'''
+Output:
+
+Enter number of clusters : 2
+{0: [('1', '1')], 1: [('2', '1'), ('4', '3'), ('5', '4')]}
+{0: [('1', '1'), ('2', '1')], 1: [('4', '3'), ('5', '4')]}
+{0: [('1', '1'), ('2', '1')], 1: [('4', '3'), ('5', '4')]}
+Exit Loop
+{0: [('1', '1'), ('2', '1')], 1: [('4', '3'), ('5', '4')]}
+'''
