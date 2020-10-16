@@ -1,0 +1,106 @@
+global final_tree
+global final_decision
+final_tree=[]
+final_decision=[]
+
+def Gsplit(w):
+    
+    c_yes=0
+    c_no=0
+    for i in range(len(w)):
+        if(w[i][-1]=="yes"):
+            c_yes=c_yes+1
+        else:
+            c_no=c_no+1
+    Gstart=1-(pow(c_yes/len(w),2)+pow(c_no/len(w),2))
+    Gdiff=[]
+    for i in range(len(w[0])-1):
+        m=[]
+        c_m=[]
+        val_m=[]
+        for k in range(len(w)):
+            if(w[k][i] not in m):
+                m.append(w[k][i])
+                c_m.append(1)
+            else:
+                c_m[m.index(w[k][i])]=c_m[m.index(w[k][i])]+1
+        for u in range(len(m)):
+            yes=0
+            no=0
+            for k in range(len(w)):
+                if((w[k][i]==m[u])and(w[k][-1]=="yes")):
+                    yes=yes+1
+                if((w[k][i]==m[u])and(w[k][-1]=="no")):
+                    no=no+1
+            r=(c_m[u]/len(w))*(1-(pow(yes/c_m[u],2)+pow(no/c_m[u],2)))
+            val_m.append(r)
+        su=0
+        for k in val_m:
+            su=su+k
+        Gdiff.append(Gstart-su)
+    return(Gdiff)
+
+def Gini(w,path):
+    gSplit=Gsplit(w)
+    #gives Gsplit list
+    gmax=gSplit.index(max(gSplit))
+    f=[]
+    ls_f=[]
+    #prepare new sub list for next iteration
+    for j in range(len(w)):
+        if(w[j][gmax] in f):
+            s=f.index(w[j][gmax])
+            e=w[j]
+            del e[gmax]
+            ls_f[s].append(e)
+        else:
+            f.append(w[j][gmax])
+            e=w[j]
+            del e[gmax]
+            y=[]
+            ls_f.append(y)
+            ls_f[-1].append(e)
+    #Recursion until last item(yes/no) remaining
+    if(len(ls_f[0])>1):
+        for x in range(len(ls_f)):
+            Gini(ls_f[x],path+[f[x]])
+    else:
+        print("path: ",">".join(path),">",ls_f[-1][-1][-1])
+        final_tree.append(path)
+        final_decision.append(ls_f[-1][-1][-1])
+        path=[]
+
+t=int(input("Enter number of inputs: "))
+b=[]
+for i in range(t):
+    a=input().split()
+    b.append(a)
+d=[]
+print("")
+print("all paths of tree:")
+Gini(b,d)
+print("")
+z=input("Give test input: ").split()
+temp=final_tree
+temp_val=final_decision
+flag=0
+while flag==0:
+    ind=[]
+    dec=[]
+    found=0
+    for m in z:
+        for h in range(len(temp)):
+            #print(temp)
+            if(m==temp[h][0]):
+                found=1
+                z1=temp[h]
+                del z1[0]
+                ind.append(z1)
+                dec.append(temp_val[h])
+        if(found==1):
+            temp_val=dec
+            temp=ind
+            break
+    if(len(temp_val)<2):
+        flag=1
+print("Decision: ",temp_val[0])
